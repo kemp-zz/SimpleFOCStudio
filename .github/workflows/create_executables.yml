@@ -33,7 +33,6 @@ jobs:
           Move-Item -Path .\dist\simpleFOCStudio.exe -Destination .\dist\simpleFOCStudio-windows-x86_64-${{ github.ref_name }}.exe
       
       - name: Create Release Tag
-        id: create_tag
         if: github.ref == 'refs/heads/testgui'
         run: |
           $TAG_NAME="testgui-$(Get-Date -Format "yyyyMMddHHmmss")"
@@ -41,9 +40,11 @@ jobs:
           git push origin $TAG_NAME
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
         shell: pwsh
-      
+
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
+        env:
+         TAG_NAME: ${{ env.TAG_NAME }}
         if: env.TAG_NAME != ''
         with:
           tag_name: ${{ env.TAG_NAME }}
