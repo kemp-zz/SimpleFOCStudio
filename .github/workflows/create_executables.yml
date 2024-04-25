@@ -24,12 +24,11 @@ jobs:
           pip install pyinstaller
 
       - name: Create Executable with PyInstaller
-        run: |
-          pyinstaller simpleFOCStudio.spec
+        run: pyinstaller simpleFOCStudio.spec
 
       - name: Rename file with details
         run: |
-          mv ./dist/windows/simpleFOCStudio.exe ./dist/windows/simpleFOCStudio-windows-x86_64-${{ github.ref_name }}.exe
+          Move-Item -Path .\dist\windows\simpleFOCStudio.exe -Destination .\dist\windows\simpleFOCStudio-windows-x86_64-${{ github.ref_name }}.exe
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
