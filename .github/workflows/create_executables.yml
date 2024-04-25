@@ -44,8 +44,10 @@ jobs:
         
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
-        if: steps.create_tag.outputs.tag_name != ''
+        if: env.TAG_NAME != ''
         with:
-          tags: ${{ steps.create_tag.outputs.tag_name }}
-          files: |
-            dist/**
+         tag_name: ${{ env.TAG_NAME }}
+         files: |
+           dist/**
+
+
