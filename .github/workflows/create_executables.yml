@@ -2,8 +2,7 @@ name: Build and Release Executable
 
 on:
   push:
-    branches:
-      - testgui
+   branches: [ testgui ]
 
 jobs:
   build_windows:
