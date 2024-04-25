@@ -50,6 +50,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: Release ${{ env.TAG_NAME }}
           tag_name: ${{ env.TAG_NAME }}
           files: ./dist/*.exe
