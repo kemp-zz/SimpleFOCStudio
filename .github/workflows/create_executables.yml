@@ -3,50 +3,44 @@ name: Package Application with Pyinstaller
 on:
   push:
     tags:
-      - "v*.*.*"
+      - 'v1.0.0'
 
 jobs:
-
   build_windows:
     runs-on: windows-latest
     steps:
-      - name: Create Executable
-        uses: sayyid5416/pyinstaller@v1
-        with:
-          spec: 'simpleFOCStudio.spec'
-          requirements: 'requirements.txt'
-          python_ver: '3.9'
-          python_arch: 'x64'
-          exe_path: './dist/windows'
+      - name: Checkout code
+        uses: actions/checkout@v2
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Create Executable with Pyinstaller
+        uses: sayyid5416/pyinstaller-action-windows@v1
+        with:
+          path: '.'
+          spec_file: 'simpleFOCStudio.spec'
+          add_data: "src;src"
+        
       - name: Rename file with details
-        run: mv dist/windows/simpleFOCStudio.exe dist/windows/simpleFOCStudio-windows-x86_64-${{ github.ref_name }}.exe
-      
+        run: |
+          $TAG_NAME = ${{ github.ref_name }} -replace 'refs/tags/', ''
+          mv .\dist\windows\simpleFOCStudio.exe .\dist\windows\simpleFOCStudio-windows-x86_64-$TAG_NAME.exe
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-binary
+          path: ./dist/windows/*.exe
+
       - name: Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: |
-            dist/windows/**
-
-  build_linux:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install pyqt5 dependencies
-        run: sudo apt install -y qtbase5-dev
-      - name: Create Executable
-        uses: sayyid5416/pyinstaller@v1
-        with:
-          spec: 'simpleFOCStudio.spec'
-          requirements: 'requirements.txt'
-          python_ver: '3.9'
-          python_arch: 'x64'
-          exe_path: './dist/linux'
-
-      - name: Rename file with details
-        run: mv dist/linux/simpleFOCStudio dist/linux/simpleFOCStudio-linux-x86_64-${{ github.ref_name }}
-      
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            dist/linux/**
+          files: dist/windows/*
