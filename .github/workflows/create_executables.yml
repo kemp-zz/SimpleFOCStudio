@@ -1,8 +1,9 @@
-name: Package Application with Pyinstaller
+name: Build and Release Executable
 
 on:
   push:
-    branches: [ testgui ]
+    branches:
+      - testgui
 
 jobs:
   build_windows:
@@ -17,8 +18,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Create Executable with Pyinstaller
         uses: sayyid5416/pyinstaller-action-windows@v1
@@ -29,5 +29,17 @@ jobs:
 
       - name: Rename file with details
         run: |
-          $TAG_NAME = ${{ github.ref_name }} -replace 'refs/tags/', ''
-          mv .\dist\windows\simple
+          $TAG_NAME = "${{ github.ref_name }}" -replace 'refs/tags/', ''
+          Rename-Item -Path ".\dist\windows\simpleFOCStudio.exe" -NewName "simpleFOCStudio-windows-x86_64-$TAG_NAME.exe"
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-binary
+          path: ./dist/windows/*.exe
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: dist/windows/*
