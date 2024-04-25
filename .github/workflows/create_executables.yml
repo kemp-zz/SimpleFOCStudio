@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v2
         with:
             fetch-depth: 0
-      
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -25,14 +25,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
-      
+
       - name: Install PyBind11
         run: |
           python -m pip install pybind11
 
       - name: Create Executable with PyInstaller
         run: pyinstaller simpleFOCStudio.spec
-      
+
       - name: Rename file with details
         run: |
           Move-Item -Path .\dist\simpleFOCStudio.exe -Destination .\dist\simpleFOCStudio-windows-x86_64-${{ github.sha }}.exe
@@ -42,8 +42,9 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          $TAG_NAME = $(echo ${GITHUB_REF#refs/heads/testgui}-$(date +%Y%m%d%H%M%S))
-          echo "::set-env name=TAG_NAME::$TAG_NAME"
+          $date = Get-Date -Format "yyyyMMddHHmmss"
+          $TAG_NAME="v${{ github.ref_name }}-$date"
+          echo "TAG_NAME=$TAG_NAME" | Out-File -FilePath $env:GITHUB_ENV -Append
           git tag $TAG_NAME
           git push origin $TAG_NAME
         shell: pwsh
