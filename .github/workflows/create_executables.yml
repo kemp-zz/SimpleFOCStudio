@@ -3,7 +3,7 @@ name: Package Application with Pyinstaller
 on:
   push:
     tags:
-      - 'v1.0.0'
+      - 'v*.*.*'
 
 jobs:
   build_windows:
