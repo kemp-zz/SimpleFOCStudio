@@ -43,4 +43,4 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           TAG_NAME=$(echo ${GITHUB_REF#refs/heads/testgui}-$(date +%Y%m%d%H%M%S))
-          echo "
+          echo "::set-env name=TAG_NAME::$TAG_NAME"
