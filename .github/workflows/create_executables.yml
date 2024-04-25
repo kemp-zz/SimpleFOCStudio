@@ -4,8 +4,7 @@ on:
   push:
     branches: [ testgui ]
 
-    tags:
-      - 'v*.*.*'
+
 
 jobs:
   build_windows:
