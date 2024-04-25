@@ -3,12 +3,14 @@ name: Python application with PyInstaller
 on: 
   push:
     branches: [ testgui ]
+  release:
+    types: [created]
 
 jobs:
   build_windows:
     runs-on: windows-latest
     steps:
-      - name: Checkout code
+  - name: Checkout code
         uses: actions/checkout@v2
       
       - name: Setup Python
@@ -22,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
-
+      
       - name: Create Executable with PyInstaller
         run: pyinstaller simpleFOCStudio.spec
 
@@ -30,8 +32,19 @@ jobs:
         run: |
           Move-Item -Path .\dist\simpleFOCStudio.exe -Destination .\dist\simpleFOCStudio-windows-x86_64-${{ github.ref_name }}.exe
 
+      - name: Create Release Tag
+        id: create_tag
+        if: github.ref == 'refs/heads/testgui'
+        run: |
+          TAG_NAME=testgui-$(date +'%Y%m%d%H%M%S')
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+          echo "::set-output name=tag_name::$TAG_NAME"
+
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
+        if: steps.create_tag.outputs.tag_name != ''
         with:
+          tags: ${{ steps.create_tag.outputs.tag_name }}
           files: |
             dist/**
