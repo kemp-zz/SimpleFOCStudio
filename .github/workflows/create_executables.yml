@@ -18,14 +18,13 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
 
       - name: Create Executable with Pyinstaller
-        uses: JackMordaunt/pyinstaller-action@v1
-        with:
-          path: '.'
-          spec_file: 'simpleFOCStudio.spec'
-          add_data: "src;src"
+        run: |
+          pyinstaller --onefile --add-data "src;src" simpleFOCStudio.spec
 
       - name: Rename file according to the tag name
         run: |
