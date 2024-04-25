@@ -36,11 +36,12 @@ jobs:
         id: create_tag
         if: github.ref == 'refs/heads/testgui'
         run: |
-          TAG_NAME=testgui-$(date +'%Y%m%d%H%M%S')
+          $TAG_NAME="testgui-$(Get-Date -Format "yyyyMMddHHmmss")"
           git tag $TAG_NAME
           git push origin $TAG_NAME
           echo "::set-output name=tag_name::$TAG_NAME"
-
+        shell: pwsh
+        
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         if: steps.create_tag.outputs.tag_name != ''
