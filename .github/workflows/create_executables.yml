@@ -1,53 +1,44 @@
-name: Python application with PyInstaller
-
-on: 
+name: create_executables
+on:
   push:
     branches: [ testgui ]
+    tags:
+      - 'v*'  # 触发标签推送到仓库时运行工作流
 
 jobs:
-  build_windows:
+  create_executables:
     runs-on: windows-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-            fetch-depth: 0
-      
-      - name: Setup Python
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-          architecture: 'x64'
-
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pyinstaller
-      
-      - name: Create Executable with PyInstaller
-        run: pyinstaller simpleFOCStudio.spec
-      
-      - name: Rename file with details
+      - name: Build Executables
         run: |
-          Move-Item -Path .\dist\simpleFOCStudio.exe -Destination .\dist\simpleFOCStudio-windows-x86_64-${{ github.sha }}.exe
-        shell: pwsh
-
-      - name: Create Release Tag
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          TAG_NAME=$(echo ${GITHUB_REF#refs/heads/})-$(date +%Y%m%d%H%M%S)
-          echo "::set-env name=TAG_NAME::$TAG_NAME"
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
-        shell: bash
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ./dist/*.exe
-          tag_name: ${{ env.TAG_NAME }}
+          make all
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: ${{ env.RELEASE_NAME }}
+          body: ${{ env.RELEASE_NOTES }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./SimpleFOCStudio-windows64.exe
+          asset_name: SimpleFOCStudio-windows64.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
