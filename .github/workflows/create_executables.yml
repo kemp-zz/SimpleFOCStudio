@@ -1,9 +1,9 @@
 name: create_executables
 on:
   push:
-  branches: [ testgui ]
+    branches: [ testgui ]
     tags:
-      - 'v*'  # 触发标签推送到仓库时运行工作流
+     - 'v*'  # 触发标签推送到仓库时运行工作流
 
 jobs:
   create_executables:
